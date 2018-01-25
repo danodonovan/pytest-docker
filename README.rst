@@ -18,8 +18,7 @@ Usage
 Here is the basic recipe for writing a test that depends on a service that
 responds over HTTP::
 
-.. code-block:: python
-
+```python
     import pytest
     import requests
 
@@ -53,7 +52,7 @@ responds over HTTP::
         """Sample test."""
         response = requests.get(some_http_service)
         response.raise_for_status()
-
+```
 
 By default this plugin will try to open ``docker-compose.yml`` in your
 ``tests`` directory.  If you need to use a custom location, override the
