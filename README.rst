@@ -18,62 +18,68 @@ Usage
 Here is the basic recipe for writing a test that depends on a service that
 responds over HTTP::
 
-   import pytest
-   import requests
+.. code-block:: python
 
-   from requests.exceptions import (
-       ConnectionError,
-   )
+    import pytest
+    import requests
 
-   def is_responsive(url):
-       """Check if something responds to ``url``."""
-       try:
-           response = requests.get(url)
-           if response.status_code == 200:
-               return True
-       except ConnectionError:
-           return False
+    from requests.exceptions import (
+        ConnectionError,
+    )
 
-   @pytest.fixture(scope='session')
-   def some_http_service(docker_ip, docker_services):
-       """Ensure that "some service" is up and responsive."""
-       url = 'http://' % (
-           docker_ip,
-           docker_services.port_for('abc', 123),
-       )
-       docker_services.wait_until_responsive(
-          timeout=30.0, pause=0.1,
-          check=lambda: is_responsive(url)
-       )
-       return url
+    def is_responsive(url):
+        """Check if something responds to ``url``."""
+        try:
+            response = requests.get(url)
+            if response.status_code == 200:
+                return True
+        except ConnectionError:
+            return False
 
-   def test_something(some_http_service):
-       """Sample test."""
-       response = requests.get(some_http_service)
-       response.raise_for_status()
+    @pytest.fixture(scope='session')
+    def some_http_service(docker_ip, docker_services):
+        """Ensure that "some service" is up and responsive."""
+        url = 'http://' % (
+            docker_ip,
+            docker_services.port_for('abc', 123),
+        )
+        docker_services.wait_until_responsive(
+            timeout=30.0, pause=0.1,
+            check=lambda: is_responsive(url)
+        )
+        return url
+
+    def test_something(some_http_service):
+        """Sample test."""
+        response = requests.get(some_http_service)
+        response.raise_for_status()
 
 
 By default this plugin will try to open ``docker-compose.yml`` in your
 ``tests`` directory.  If you need to use a custom location, override the
 ``docker_compose_file`` fixture inside your ``conftest.py`` file::
 
-   import pytest
+.. code-block:: python
 
-   @pytest.fixture(scope='session')
-   def docker_compose_file(pytestconfig):
-       return os.path.join(
-           str(pytestconfig.rootdir),
-           'mycustomdir'
-           'docker-compose.yml'
-       )
+    import pytest
+
+    @pytest.fixture(scope='session')
+    def docker_compose_file(pytestconfig):
+        return os.path.join(
+            str(pytestconfig.rootdir),
+            'mycustomdir'
+            'docker-compose.yml'
+        )
 
 
 You can allow this plugin to run your tests when Docker is not available.
 It will use the container port and localhost instead::
 
-   @pytest.fixture(scope='session')
-   def docker_allow_fallback():
-       return True
+.. code-block:: python
+
+    @pytest.fixture(scope='session')
+    def docker_allow_fallback():
+        return True
 
 
 Changelog
